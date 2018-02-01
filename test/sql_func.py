@@ -2,7 +2,7 @@ import sqlite3
 
 
 def get_con_cur(db_path):
-	con = sqlite3.connect("..\\date\\num_wkh.db")
+	con = sqlite3.connect(db_path)
 	cur = con.cursor()
 	return(con, cur)
 
@@ -23,7 +23,7 @@ def db2dict(cur, rnd):
 		md["owner_addr"] = m[8]
 		md["rnd"] = m[9]
 		md["time"] = m[10]
-		mdict_list,append(md)
+		mdict_list.append(md)
 
 	cur.execute("SELECT * FROM Owner WHERE rnd=?", (rnd,))
 	olist = cur.fetchall()
