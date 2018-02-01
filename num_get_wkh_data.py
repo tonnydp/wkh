@@ -57,6 +57,7 @@ try:
 	mk_num = login(driver, SERVER_ID, phone)
 	print(str(mk_num) + " We got!")
 	if MODE == "PROD":
+		print("请设置为无图模式。")
 		sleep(40)
 
 	for i in range(cur_mk_id, mk_num + 1):
