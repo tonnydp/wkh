@@ -73,25 +73,41 @@ def init_db(db_path):
 	return (con, cur)
 
 def get_mk_list(cur, rnd):
+	print("Start!")
+	t = time.time()
 	count_obj = cur.execute("SELECT COUNT(id) FROM Monkey WHERE rnd=?", (rnd,))
 	count = count_obj.fetchone()[0]
 	mk_list = []
+	print("SELECT MK COUNT %.3f." % (time.time() - t,))
+	t = time.time()
 	if count > 0:
 		cur.execute("SELECT id FROM Monkey WHERE rnd=?", (rnd,))
+		print("SELECT MK ID * %.3f." % (time.time() - t,))
+		t = time.time()
 		id_list = cur.fetchall()
+		print("FETCH ALL MK %.3f." % (time.time() - t,))
+		t = time.time()
 		for id_tuple in id_list:
 			if id_tuple[0] not in mk_list:
 				mk_list.append(id_tuple[0])
-
+		print("ADD ALL MK %.3f." % (time.time() - t,))
+		t = time.time()
 	count_obj = cur.execute("SELECT COUNT(addr) FROM Owner WHERE rnd=?", (rnd,))
 	count = count_obj.fetchone()[0]
 	owner_list = []
+	print("SELECT OW COUNT %.3f." % (time.time() - t,))
+	t = time.time()
 	if count > 0:
 		cur.execute("SELECT addr FROM Owner WHERE rnd=?", (rnd,))
+		print("SELECT OW ID * %.3f." % (time.time() - t,))
+		t = time.time()
 		id_list = cur.fetchall()
+		print("FETCH ALL OW %.3f." % (time.time() - t,))
+		t = time.time()
 		for id_tuple in id_list:
 			if id_tuple[0] not in owner_list:
 				owner_list.append(id_tuple[0])
+		print("ADD ALL OW %.3f." % (time.time() - t,))
 	return (count, mk_list, owner_list)
 
 #(id INT,  ok INT,cur_mk_id INT,time TEXT); 
