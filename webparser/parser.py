@@ -6,6 +6,7 @@ import sys
 from os import path
 
 from webaction.actions import *
+import timeutils as tu
 
 def parse_owner_info(driver):
 	if "/profile/" in driver.current_url:
@@ -32,6 +33,7 @@ def parse_owner_monkeys(driver):
 				if len(items) == prev_len:	
 					break
 				prev_len = len(items)
+		tu.log_time_elps(1, "SCROLL ALL MK")
 		for item in items:
 			m_info = parse_monkey_info_in_owner_page(driver, item)
 			m_list.append(m_info)

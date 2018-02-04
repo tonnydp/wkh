@@ -61,50 +61,35 @@ try:
 			cur_mk_id = start_id
 		print(str(rnd) + " " + str(cur_mk_id))
 		
-		
-
-
 		(count, monkey_list, owner_list) = sql.get_mk_list(cur, rnd)
 		# print(monkey_list)
 		# print(owner_list)
 		bad_owner_list = []
-		bad_monkey_list = []
-		
+		bad_monkey_list = []		
 
 		for i in range(cur_mk_id, mk_num + 1):
 			if i in monkey_list:
 				continue
-			t = time.time()
+			t0 = time.time()
+			tu.restart_time_elps(1)
 			driver.get(mk_url + str(i))
 			driver.implicitly_wait(10)
-			#sleep(500)
-			#MAX_404_RETRY = 10
+			tu.log_time_elps(1, "OPEN WEB PAGE")
 			try:
-				svg404 = driver.find_element_by_css_selector('#app > div.page > svg.me404')
+				svg404 = driver.find_element_by_css_selector('html > body > div.app > div.page > svg.me404')
 				print("Not get data from " + str(i))
 				cur.execute("INSERT INTO BadMonkey VALUES(?,?,?,?)",(i, rnd, "404_FAILURE", str_time()))
+				con.commit()
 				continue
 			except:
 				pass
-			# for rt in range(MAX_404_RETRY):
-			# 	if driver.current_url == mk_url + str(i):
-			# 		break
-			# 	sleep(1)
-			# 	driver.get(mk_url + str(i))
-			# 	driver.implicitly_wait(10)
-			# else:
-			# 	print("Not get data from " + str(i))
-			# 	cur.execute("INSERT INTO BadMonkey VALUES(?,?,?,?)",(i, rnd, "404_FAILURE", str_time()))
-			# 	continue
 			try:
-				tu.restart_time_elps(1)
-				tu.log_time_elps(1, "OWNER")
+				
+				tu.log_time_elps(1, "SEARCH FOR 404")
 				owner = get_owner_in_monkey_page(driver)
 				owner.click()
-				tu.log_time_elps(1, "GET PAGE AND CLICK")
 				#change to sleep 2 sec 2018-01-29
 				wait_for_infin_bar_dispear(driver)
-				tu.log_time_elps(1, "WAIT BAR DISPEAR")
 				owner_info = parse_owner_info(driver)
 				owner_info["time"] = str_time()
 				for ii in range(7):
@@ -115,10 +100,9 @@ try:
 				print(e)
 				print("BAD OWNER PAGE BUT CONTINUED! " + str(i))
 			if owner_info["addr"] not in owner_list and owner_info["addr"] != "NONE":
-				tu.restart_time_elps(2)
 				monkeys_of_owner = parse_owner_monkeys(driver)
 				mk_data = []
-				tu.log_time_elps(2, "PARSE MK")
+				tu.log_time_elps(1, "PARSE MK")
 				for m in monkeys_of_owner:
 					int_id = int(m["id"])
 					if int_id > mk_num:
@@ -129,7 +113,7 @@ try:
 					m["time"] = str_time()
 					mk_data.append((m["id"], m["gen"], m["cz"], m["sy"], m["jj"], m["kg"], m["price_type"], m["price"], m["owner_addr"],m["rnd"], m["time"]))			
 					owner_info["n" + str(m["gen"])] = owner_info["n" + str(m["gen"])] + 1
-				tu.log_time_elps(2, "INSERT MK")
+				tu.log_time_elps(1, "INSERT MK")
 				cur.executemany("insert into Monkey (id, gen, cz, sy, jj, kg, price_type, price, owner_addr, rnd, time)values(?,?,?,?,?,?,?,?,?,?,?)", mk_data)
 				owner_info["rnd"] = rnd
 
@@ -142,7 +126,7 @@ try:
 				print(str(i) + "\t" + str(len(monkeys_of_owner)) + "\t" + str(owner_info_p))
 				print("Mk: " + str(len(monkey_list)) + "\tOwner: " + str(len(owner_list)))
 				final_mk_id = i
-				tu.log_time_elps(2, "INSERT OWNER")
+				tu.log_time_elps(1, "INSERT OWNER")
 			else:
 				
 				if owner_info["addr"] in owner_list:
@@ -152,7 +136,7 @@ try:
 						
 				else:
 					cur.execute("INSERT INTO BadOwner VALUES(?, ?, ?, ?)", (owner_info["addr"], rnd, "BAD_OWNER_PAGE", str_time()))
-			total_t = time.time() - t
+			total_t = time.time() - t0
 			print("Time for this Owner is %.2f. Avg time is %.4f." % (total_t, total_t/len(monkeys_of_owner)))
 		
 		print("%d round finished at %s. Got %d Monkeys." % (rnd, str_time(), mk_num))
