@@ -87,9 +87,12 @@ def get_mk_list(cur, rnd):
 		id_list = cur.fetchall()
 		print("FETCH ALL MK %.3f." % (time.time() - t,))
 		t = time.time()
+		mk_set = set()
 		for id_tuple in id_list:
-			if id_tuple[0] not in mk_list:
-				mk_list.append(id_tuple[0])
+			# if id_tuple[0] not in mk_list:
+			# 	mk_list.append(id_tuple[0])
+			mk_set.add(id_tuple[0])
+		mk_list = list(mk_set)
 		print("ADD ALL MK %.3f." % (time.time() - t,))
 		t = time.time()
 	count_obj = cur.execute("SELECT COUNT(addr) FROM Owner WHERE rnd=?", (rnd,))

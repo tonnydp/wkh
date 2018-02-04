@@ -74,6 +74,7 @@ try:
 		for i in range(cur_mk_id, mk_num + 1):
 			if i in monkey_list:
 				continue
+			t = time.time()
 			driver.get(mk_url + str(i))
 			driver.implicitly_wait(10)
 			#sleep(500)
@@ -148,6 +149,8 @@ try:
 						
 				else:
 					cur.execute("INSERT INTO BadOwner VALUES(?, ?, ?, ?)", (owner_info["addr"], rnd, "BAD_OWNER_PAGE", str_time()))
+			total_t = time.time() - t
+			print("Time for this Owner is %.2f. Avg time is %.4f." % (total_t, total_t/len(monkeys_of_owner)))
 		
 		print("%d round finished at %s. Got %d Monkeys." % (rnd, str_time(), mk_num))
 		cur.execute("INSERT INTO Round values(?, ?, ?, ?)", (rnd, 1, final_mk_id, str_time()))
