@@ -120,9 +120,10 @@ try:
 				mk_data = []
 				tu.log_time_elps(2, "PARSE MK")
 				for m in monkeys_of_owner:
-					if int(m["id"]) > mk_num:
-						mk_num = int(m["id"])
-					monkey_list.append(int(m["id"]))
+					int_id = int(m["id"])
+					if int_id > mk_num:
+						mk_num = int_id
+					monkey_list.append(int_id)
 					m["owner_addr"] = owner_info["addr"]
 					m["rnd"] = rnd
 					m["time"] = str_time()
