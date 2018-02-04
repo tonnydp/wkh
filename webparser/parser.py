@@ -6,7 +6,7 @@ import sys
 from os import path
 
 from webaction.actions import *
-import timeutils as tu
+import utils.timeutils as tu
 
 def parse_owner_info(driver):
 	if "/profile/" in driver.current_url:
