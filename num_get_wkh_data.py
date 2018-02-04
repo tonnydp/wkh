@@ -45,20 +45,22 @@ try:
 	while True:
 		(rnd, cur_mk_id) = sql.get_cur_round(cur)
 		print(str(rnd) + " " + str(cur_mk_id))
-		(count, monkey_list, owner_list) = sql.get_mk_list(cur, rnd)
-		# print(monkey_list)
-		# print(owner_list)
-		bad_owner_list = []
-		bad_monkey_list = []
 		driver = webdriver.Chrome()
 		driver.get('http://monkey.plus/')
 		driver.implicitly_wait(10)
-
 		mk_num = login(driver, SERVER_ID, phone)
 		print(str(mk_num) + " We got!")
 		if MODE == "PROD":
 			print("请设置为无图模式。")
 			sleep(40)
+
+
+		(count, monkey_list, owner_list) = sql.get_mk_list(cur, rnd)
+		# print(monkey_list)
+		# print(owner_list)
+		bad_owner_list = []
+		bad_monkey_list = []
+		
 
 		for i in range(cur_mk_id, mk_num + 1):
 			if i in monkey_list:
