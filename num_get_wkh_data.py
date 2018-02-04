@@ -75,17 +75,15 @@ try:
 			driver.get(mk_url + str(i))
 			driver.implicitly_wait(10)
 			tu.log_time_elps(1, "OPEN WEB PAGE")
-			try:
-				svg404 = driver.find_element_by_css_selector('html > body > div.app > div.page > svg.me404')
-				print("Not get data from " + str(i))
+
+			if 'class="me404"' in driver.page_source:
+				print("404_PAGE")
 				cur.execute("INSERT INTO BadMonkey VALUES(?,?,?,?)",(i, rnd, "404_FAILURE", str_time()))
 				con.commit()
 				continue
-			except:
-				pass
+				print("Not get data from " + str(i))
+			tu.log_time_elps(1, "SEARCH FOR 404")
 			try:
-				
-				tu.log_time_elps(1, "SEARCH FOR 404")
 				owner = get_owner_in_monkey_page(driver)
 				owner.click()
 				#change to sleep 2 sec 2018-01-29
