@@ -61,11 +61,14 @@ try:
 			cur_mk_id = start_id
 		print(str(rnd) + " " + str(cur_mk_id))
 		
-		(count, monkey_list, owner_list) = sql.get_mk_list(cur, rnd)
+		(mk_id_max, monkey_list, owner_list) = sql.get_mk_list(cur, rnd)
 		# print(monkey_list)
 		# print(owner_list)
 		bad_owner_list = []
 		bad_monkey_list = []		
+		if mk_id_max > mk_num:
+			mk_num = mk_id_max
+			print("Update MAX ID to %d" % (mk_num,))
 
 		for i in range(cur_mk_id, mk_num + 1):
 			if i in monkey_list:

@@ -80,6 +80,7 @@ def get_mk_list(cur, rnd):
 	mk_list = []
 	print("SELECT MK COUNT %.3f." % (time.time() - t,))
 	t = time.time()
+	mk_max = 0
 	if count > 0:
 		cur.execute("SELECT id FROM Monkey WHERE rnd=?", (rnd,))
 		print("SELECT MK ID * %.3f." % (time.time() - t,))
@@ -91,6 +92,8 @@ def get_mk_list(cur, rnd):
 		for id_tuple in id_list:
 			# if id_tuple[0] not in mk_list:
 			# 	mk_list.append(id_tuple[0])
+			if id_tuple[0] > mk_max:
+				mk_max = id_tuple[0]
 			mk_set.add(id_tuple[0])
 		mk_list = list(mk_set)
 		print("ADD ALL MK %.3f." % (time.time() - t,))
@@ -111,7 +114,7 @@ def get_mk_list(cur, rnd):
 			if id_tuple[0] not in owner_list:
 				owner_list.append(id_tuple[0])
 		print("ADD ALL OW %.3f." % (time.time() - t,))
-	return (count, mk_list, owner_list)
+	return (mk_max, mk_list, owner_list)
 
 #(id INT,  ok INT,cur_mk_id INT,time TEXT); 
 def get_cur_round(cur):
