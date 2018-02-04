@@ -11,6 +11,7 @@ from os import path
 from webaction.actions import *
 from webparser.parser import *
 import mysqlite.sql as sql
+import utils.timeutils as tu
 
 
 if len(sys.argv) >= 2:
@@ -26,6 +27,10 @@ if len(sys.argv) >= 2:
 		SERVER_ID = 1
 	else:
 		raise Exception("Bad Cmd Param!")
+	if len(sys.argv) == 4 and MODE == "DEBUG":
+		start_id = int(sys.argv[3])
+	else:
+		start_id = 0
 
 else:
 	raise Exception("Bad Cmd Param!")
@@ -42,17 +47,21 @@ final_mk_id = 0
 try:
 	
 	(con, cur) = sql.init_db("..\\data\\num_wkh.db")
+	driver = webdriver.Chrome()
+	driver.get('http://monkey.plus/')
+	driver.implicitly_wait(10)
+	mk_num = login(driver, SERVER_ID, phone)
+	print(str(mk_num) + " We got!")
+	if MODE == "PROD":
+		print("请设置为无图模式。")
+		sleep(40)
 	while True:
 		(rnd, cur_mk_id) = sql.get_cur_round(cur)
+		if start_id > 0:
+			cur_mk_id = start_id
 		print(str(rnd) + " " + str(cur_mk_id))
-		driver = webdriver.Chrome()
-		driver.get('http://monkey.plus/')
-		driver.implicitly_wait(10)
-		mk_num = login(driver, SERVER_ID, phone)
-		print(str(mk_num) + " We got!")
-		if MODE == "PROD":
-			print("请设置为无图模式。")
-			sleep(40)
+		
+		
 
 
 		(count, monkey_list, owner_list) = sql.get_mk_list(cur, rnd)
@@ -68,32 +77,47 @@ try:
 			driver.get(mk_url + str(i))
 			driver.implicitly_wait(10)
 			#sleep(500)
-			MAX_404_RETRY = 10
-			for rt in range(MAX_404_RETRY):
-				if driver.current_url == mk_url + str(i):
-					break
-				sleep(1)
-				driver.get(mk_url + str(i))
-				driver.implicitly_wait(10)
-			else:
+			#MAX_404_RETRY = 10
+			try:
+				svg404 = driver.find_element_by_css_selector('#app > div.page > svg.me404')
 				print("Not get data from " + str(i))
 				cur.execute("INSERT INTO BadMonkey VALUES(?,?,?,?)",(i, rnd, "404_FAILURE", str_time()))
 				continue
+			except:
+				pass
+			# for rt in range(MAX_404_RETRY):
+			# 	if driver.current_url == mk_url + str(i):
+			# 		break
+			# 	sleep(1)
+			# 	driver.get(mk_url + str(i))
+			# 	driver.implicitly_wait(10)
+			# else:
+			# 	print("Not get data from " + str(i))
+			# 	cur.execute("INSERT INTO BadMonkey VALUES(?,?,?,?)",(i, rnd, "404_FAILURE", str_time()))
+			# 	continue
 			try:
+				tu.restart_time_elps(1)
+				tu.log_time_elps(1, "OWNER")
 				owner = get_owner_in_monkey_page(driver)
 				owner.click()
+				tu.log_time_elps(1, "GET PAGE AND CLICK")
 				#change to sleep 2 sec 2018-01-29
 				wait_for_infin_bar_dispear(driver)
+				tu.log_time_elps(1, "WAIT BAR DISPEAR")
 				owner_info = parse_owner_info(driver)
 				owner_info["time"] = str_time()
 				for ii in range(7):
 					owner_info["n" + str(ii)] = 0
-			except:
+				tu.log_time_elps(1, "PARSE ONWER INFO")
+			except Exception as e:
 				owner_info = {"name": "NONE", "addr": "NONE"}
+				print(e)
 				print("BAD OWNER PAGE BUT CONTINUED! " + str(i))
 			if owner_info["addr"] not in owner_list and owner_info["addr"] != "NONE":
+				tu.restart_time_elps(2)
 				monkeys_of_owner = parse_owner_monkeys(driver)
 				mk_data = []
+				tu.log_time_elps(2, "PARSE MK")
 				for m in monkeys_of_owner:
 					monkey_list.append(int(m["id"]))
 					m["owner_addr"] = owner_info["addr"]
@@ -101,6 +125,7 @@ try:
 					m["time"] = str_time()
 					mk_data.append((m["id"], m["gen"], m["cz"], m["sy"], m["jj"], m["kg"], m["price_type"], m["price"], m["owner_addr"],m["rnd"], m["time"]))			
 					owner_info["n" + str(m["gen"])] = owner_info["n" + str(m["gen"])] + 1
+				tu.log_time_elps(2, "INSERT MK")
 				cur.executemany("insert into Monkey (id, gen, cz, sy, jj, kg, price_type, price, owner_addr, rnd, time)values(?,?,?,?,?,?,?,?,?,?,?)", mk_data)
 				owner_info["rnd"] = rnd
 
@@ -113,6 +138,7 @@ try:
 				print(str(i) + "\t" + str(len(monkeys_of_owner)) + "\t" + str(owner_info_p))
 				print("Mk: " + str(len(monkey_list)) + "\tOwner: " + str(len(owner_list)))
 				final_mk_id = i
+				tu.log_time_elps(2, "INSERT OWNER")
 			else:
 				
 				if owner_info["addr"] in owner_list:
