@@ -53,8 +53,8 @@ try:
 	mk_num = login(driver, SERVER_ID, phone)
 	print(str(mk_num) + " We got!")
 	if MODE == "PROD":
-		print("请设置为无图模式。")
-		sleep(40)
+		driver.get('chrome://settings/content/images')
+		sleep(10)
 	while True:
 		(rnd, cur_mk_id) = sql.get_cur_round(cur)
 		if start_id > 0:
