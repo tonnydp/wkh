@@ -82,6 +82,7 @@ def login(driver, server_id, phone):
 
 	#sleep(100)
 	tabbars = driver.find_elements_by_css_selector("body > div#app > div.container > div[class='weui-tabbar tab'] > a[class^='weui-tabbar__item']")
+	print(len(tabbars))
 	if len(tabbars) == 5:
 		return mk_num
 	else:
