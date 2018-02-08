@@ -119,3 +119,38 @@ def parse_monkeys_of_zupu(driver):
 			monkey_list.append((m_id, img))
 	return monkey_list
 
+###############################################################
+#Goods Parser
+###############################################################
+
+def parse_goods_price(driver, goods_type, last_state):
+	price_trs = driver.find_elements_by_css_selector("div.panel> table > tbody > tr")
+	if len(price_trs) != 11:
+		raise "Wrong Price Table! Len of Trs is %d" % (len(price_trs),)
+	price_data_list = []
+	while True:
+		price_data_list = []
+		t_str = str_time()
+		for i in range(11):
+			if i != 5:
+				tds = price_trs[i].find_elements_by_css_selector("td")
+				if len(tds) != 4:
+					raise "Wrong Price Table Len of TDS is %d" % (len(tds),)
+				name = tds[0].get_attribute("innerHTML")
+				mount = int(tds[1].get_attribute("innerHTML"))
+				price_str = tds[2].get_attribute("innerHTML")
+				price_type = price_str.split(" ")[1]
+				price = float(price_str.split(" ")[0])
+				if i in range(5):
+					bid_type = "SELL"
+				else:
+					bid_type = "BUY"
+				price_data_list.append((t_str, name, mount, price, price_type, bid_type, goods_type))
+		(n,m,last_p) = last_state
+		if len(price_data_list) != 10 or (last_p > price*0.5 and last_p < price*1.5):
+			print("*****ONCE AGAIN!*******")
+			sleep(1)
+		else:
+			last_state = (name, mount, price)
+			break
+	return (price_data_list, last_state)

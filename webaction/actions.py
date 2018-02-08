@@ -8,8 +8,10 @@ import sys
 from os import path
 
 
-tab_bar_dict = {"home" : 0, "market": 1, "items" : 2,"mine" : 3}
+tab_bar_dict = {"home" : 0, "market": 1, "find": 2,"items" : 3,"mine" : 4}
+goods_bar_dict = {"猴毛": 0, "蟠桃":1, "官方": 2}
 order_dict = {"价格": 0, "代数":1, "体重":2, "生育":3}
+
 def str_date():
 	return time.strftime('%Y-%m-%d',time.localtime(time.time()))
 
@@ -96,6 +98,22 @@ def click_tabbar(driver, tab_name):
 	if tabbars[tab_bar_dict[tab_name]].get_attribute("class") != "weui-tabbar__item weui-bar__item_on" :
 		tabbars[tab_bar_dict[tab_name]].click()
 		sleep(1)
+def click_goods_tabbar(driver, tab_name):
+	if tab_name not in goods_bar_dict.keys():
+		raise Exception("Bad Goods Tabbar Name.")
+	tabbars = driver.find_elements_by_css_selector("div.goods > div")
+	tabbars[goods_bar_dict[tab_name]].click()
+	sleep(1)
+
+def is_goods_tabbar_active(driver, tab_name):
+	if tab_name not in goods_bar_dict.keys():
+		raise Exception("Bad Goods Tabbar Name.")
+	tabbars = driver.find_elements_by_css_selector("div.goods > div")
+	active_str = tabbars[goods_bar_dict[tab_name]].get_attribute("class")
+	if active_str == "active":
+		return True
+	else:
+		return False
 
 def get_cur_tabbar(driver):
 	tabbars = driver.find_elements_by_css_selector("body > div#app > div.container > div[class='weui-tabbar tab'] > a[class^='weui-tabbar__item']")

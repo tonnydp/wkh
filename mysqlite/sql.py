@@ -140,6 +140,39 @@ def get_cur_round(cur):
 				cur_mk_id = mid[0]
 		return (rnd + 1, cur_mk_id)
 
+#####################################################
+#Goods SQL
+#####################################################
+
+def init_db_goods(db_path):
+	con = sqlite3.connect(db_path)
+	cur = con.cursor()
+
+	create_goods_tb_cmd='''
+        CREATE TABLE IF NOT EXISTS Goods
+        (time TEXT,
+         name TEXT,
+         mount INT,
+         price REAL,
+         price_type TEXT,
+         bid_type TEXT,
+         goods_type TEXT); 
+        '''  
+	cur.execute(create_goods_tb_cmd)
+
+	create_goods_time_price_tb_cmd='''
+        CREATE TABLE IF NOT EXISTS GoodsTimePrice
+        (time TEXT,
+         price REAL,
+         price_type TEXT,
+         goods_type TEXT); 
+        '''  
+	cur.execute(create_goods_time_price_tb_cmd)
+
+	return (con, cur)
+
+def insert_goods_data(cur, goods_data):
+	cur.executemany("insert into Goods (time, name, mount, price, price_type, bid_type, goods_type) VALUES (?,?,?,?,?,?,?)",goods_data)
 
 
 
